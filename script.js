@@ -1,4 +1,4 @@
-let scene, camera, renderer, jimboModel, spaceModel;
+let scene, camera, renderer, jimboModel;
 let isLaughing = false;
 let laughAnimation = 0;
 let laughSound;
@@ -20,7 +20,7 @@ function init() {
 
     // Load laugh sound (with loop)
     laughSound = new Audio('./laugh.mp3');
-    laughSound.loop = true;
+    laughSound.loop = true; // REPEAT UNTIL STOP
 
     // Raycaster for click detection
     raycaster = new THREE.Raycaster();
@@ -34,22 +34,9 @@ function init() {
     directionalLight.position.set(5, 10, 7);
     scene.add(directionalLight);
 
-    const loader = new THREE.GLTFLoader();
-
-    // Load Space background model
-    loader.load('./3d/space.glb', function(gltf) {
-        spaceModel = gltf.scene;
-        scene.add(spaceModel);
-        
-        // Ajusta o espaço pro background
-        spaceModel.scale.set(50, 50, 50); // Scale up for background
-        spaceModel.position.z = -100; // Move far back
-        spaceModel.rotation.x = Math.PI / 6; // Slight tilt for better view
-        
-        console.log('Space 3D background loaded successfully!');
-    });
-
     // Load Jimbo model
+    const loader = new THREE.GLTFLoader();
+    
     loader.load('./3d/jimbo.glb', function(gltf) {
         jimboModel = gltf.scene;
         scene.add(jimboModel);
@@ -60,39 +47,46 @@ function init() {
         console.log('Jimbo 3D loaded successfully!');
     });
 
-    // Mouse move - Jimbo follows mouse
+    // Mouse move - Jimbo follows mouse (FULLY CORRECTED)
     document.addEventListener('mousemove', (e) => {
         if (!jimboModel || isLaughing) return;
         
         const mouseX = (e.clientX / window.innerWidth) * 2 - 1;
         const mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
         
-        jimboModel.rotation.y = mouseX * 0.5;
-        jimboModel.rotation.x = -mouseY * 0.3;
+        // FINAL CORRECTION - ALL DIRECTIONS CORRECT
+        jimboModel.rotation.y = mouseX * 0.5; // Left/Right FIXED (no negative)
+        jimboModel.rotation.x = -mouseY * 0.3; // Up/Down correct
     });
 
     // Click - ONLY on Jimbo
     document.addEventListener('click', (e) => {
         if (!jimboModel) return;
         
+        // Calculate mouse position in normalized device coordinates
         mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
         
+        // Check if click is on Jimbo
         raycaster.setFromCamera(mouse, camera);
         const intersects = raycaster.intersectObject(jimboModel, true);
         
         if (intersects.length > 0) {
+            // Click is on Jimbo - toggle laugh
             if (!isLaughing) {
+                // Start laughing
                 isLaughing = true;
                 jimboModel.scale.set(3.25, 3.25, 3.25);
                 laughSound.play();
                 laughAnimation = 0;
             } else {
+                // Stop laughing
                 isLaughing = false;
                 jimboModel.scale.set(2.5, 2.5, 2.5);
                 laughSound.pause();
                 laughSound.currentTime = 0;
                 
+                // Reset rotation for mouse following
                 jimboModel.rotation.x = 0;
                 jimboModel.rotation.y = 0;
             }
@@ -103,12 +97,8 @@ function init() {
     function animate() {
         requestAnimationFrame(animate);
 
-        // Rotate space background slowly
-        if (spaceModel) {
-            spaceModel.rotation.y += 0.001; // Very slow rotation
-        }
-
         if (jimboModel && isLaughing) {
+            // Slow head shaking
             laughAnimation += 0.08;
             jimboModel.rotation.x = Math.sin(laughAnimation * 4) * 0.05;
             jimboModel.rotation.y = Math.sin(laughAnimation * 3) * 0.03;
@@ -119,6 +109,7 @@ function init() {
 
     animate();
 
+    // Window resize
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -126,4 +117,4 @@ function init() {
     });
 }
 
-init();```
+init();
