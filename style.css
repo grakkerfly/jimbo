@@ -3,12 +3,13 @@ body {
     padding: 0;
     overflow: hidden;
     background: #000;
-    cursor: url('/jimbo.png') 16 16, auto;
+    cursor: url('jimbo.png') 16 16, pointer;
 }
 
 #container {
     width: 100vw;
     height: 100vh;
 }
+
 
 
