@@ -43,6 +43,7 @@ function init() {
     loader.load('./3d/space.glb', function(gltf) {
         spaceModel = gltf.scene;
         scene.add(spaceModel);
+        spaceModel.scale.set(0.5, 0.5, 0.5);
         spaceModel.position.z = -10;
         console.log('Space background loaded!');
     });
@@ -143,3 +144,4 @@ function init() {
 }
 
 init();
+
