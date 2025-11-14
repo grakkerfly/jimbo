@@ -18,28 +18,33 @@ body {
 
 .top-text {
     position: absolute;
-    top: 20px;
+    top: 50px;
     left: 0;
     width: 100%;
     text-align: center;
-    color: #ffffff; /* Yellow to match the theme */
+    color: #ffffff;
     font-size: 2rem;
     font-weight: bold;
     z-index: 2;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-    pointer-events: none;
+    user-select: all;
+    cursor: text;
+    pointer-events: auto;
 }
 
 .bottom-text {
     position: absolute;
-    bottom: 20px;
+    bottom: 50px;
     left: 0;
     width: 100%;
     text-align: center;
-    color: #ffffff; /* Yellow to match the theme */
+    color: #ffffff;
     font-size: 1.2rem;
-    font-family: 'Courier New', monospace; /* Crypto address style */
+    font-family: 'Courier New', monospace;
     z-index: 2;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-    pointer-events: none;
+    user-select: all;
+    cursor: text;
+    pointer-events: auto;
 }
+
