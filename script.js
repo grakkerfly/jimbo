@@ -1,4 +1,7 @@
 let scene, camera, renderer, jimboModel;
+let isClicked = false;
+let originalScale = new THREE.Vector3();
+let laughAnimation = 0;
 
 function init() {
     // Scene
@@ -29,37 +32,57 @@ function init() {
         jimboModel = gltf.scene;
         scene.add(jimboModel);
         
-        // Adjust scale and position
+        // Initial scale and position
         jimboModel.scale.set(2, 2, 2);
+        originalScale.copy(jimboModel.scale);
         jimboModel.position.y = 0;
         
         console.log('Jimbo 3D loaded successfully!');
-    }, undefined, function(error) {
-        console.error('Error loading model:', error);
     });
 
-    // Mouse controls
-    let mouseX = 0, mouseY = 0;
-    let isMouseDown = false;
-
-    document.addEventListener('mousedown', () => isMouseDown = true);
-    document.addEventListener('mouseup', () => isMouseDown = false);
+    // Mouse move - Jimbo follows mouse
     document.addEventListener('mousemove', (e) => {
-        if (isMouseDown) {
-            mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-            mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
-        }
+        if (!jimboModel || isClicked) return;
+        
+        const mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+        const mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+        
+        // Smooth follow
+        jimboModel.rotation.y = mouseX * 0.3;
+        jimboModel.rotation.x = mouseY * 0.2;
     });
 
-    // Animation
+    // Click - Jimbo comes closer and laughs
+    document.addEventListener('click', () => {
+        if (!jimboModel) return;
+        
+        isClicked = true;
+        
+        // Zoom in (150%)
+        jimboModel.scale.set(
+            originalScale.x * 1.5,
+            originalScale.y * 1.5, 
+            originalScale.z * 1.5
+        );
+        
+        // Start laugh animation
+        laughAnimation = 0;
+        
+        // Return to normal after 2 seconds
+        setTimeout(() => {
+            isClicked = false;
+            jimboModel.scale.copy(originalScale);
+        }, 2000);
+    });
+
+    // Animation loop
     function animate() {
         requestAnimationFrame(animate);
 
-        if (jimboModel) {
-            // Rotation with mouse + automatic
-            jimboModel.rotation.y += (mouseX * 0.02 - jimboModel.rotation.y) * 0.1;
-            jimboModel.rotation.x += (mouseY * 0.02 - jimboModel.rotation.x) * 0.1;
-            jimboModel.rotation.y += 0.005;
+        if (jimboModel && isClicked) {
+            // Fast up-down movement (laughing)
+            laughAnimation += 0.5;
+            jimboModel.position.y = Math.sin(laughAnimation * 10) * 0.1; // Small movement
         }
 
         renderer.render(scene, camera);
