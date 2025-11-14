@@ -39,44 +39,44 @@ function init() {
 
     const loader = new THREE.GLTFLoader();
 
+    // Load Space background model
+    loader.load('./3d/space.glb', function(gltf) {
+        spaceModel = gltf.scene;
+        scene.add(spaceModel);
+        spaceModel.scale.set(0.5, 0.5, 0.5);
+        spaceModel.position.z = -10;
 
-    
-// Load Space background model
-loader.load('./3d/space.glb', function(gltf) {
-    spaceModel = gltf.scene;
-    scene.add(spaceModel);
-    spaceModel.scale.set(0.5, 0.5, 0.5); // ← ESCALA MANTIDA
-    spaceModel.position.z = -10;
-
-    // YELLOW OVERLAY
-    const overlayGeometry = new THREE.PlaneGeometry(200, 200);
-    const overlayMaterial = new THREE.MeshBasicMaterial({
-        color: 0xffff00,
-        transparent: true,
-        opacity: 0.8,
-        blending: THREE.MultiplyBlending
+        // YELLOW OVERLAY
+        const overlayGeometry = new THREE.PlaneGeometry(200, 200);
+        const overlayMaterial = new THREE.MeshBasicMaterial({
+            color: 0xffff00,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.MultiplyBlending
+        });
+        
+        const yellowOverlay = new THREE.Mesh(overlayGeometry, overlayMaterial);
+        yellowOverlay.position.z = -5;
+        scene.add(yellowOverlay);
+        
+        console.log('Space background loaded with yellow overlay!');
     });
-    
-    const yellowOverlay = new THREE.Mesh(overlayGeometry, overlayMaterial);
-    yellowOverlay.position.z = -5; // Mais perto da câmera
-    scene.add(yellowOverlay);
-    
-    console.log('Space background loaded with yellow overlay!');
-});
 
-
-    
-    // Load Jimbo model
+    // Load Jimbo model - MOBILE OPTIMIZED
     loader.load('./3d/jimbo.glb', function(gltf) {
         jimboModel = gltf.scene;
         scene.add(jimboModel);
         
-        jimboModel.scale.set(2.5, 2.5, 2.5);
-        currentScale = 2.5;
-        targetScale = 2.5;
+        // MOBILE DETECTION
+        const isMobile = window.innerWidth <= 768;
+        const normalScale = isMobile ? 1.5 : 2.5;
+        
+        jimboModel.scale.set(normalScale, normalScale, normalScale);
+        currentScale = normalScale;
+        targetScale = normalScale;
         jimboModel.position.y = 0;
         
-        console.log('Jimbo 3D loaded successfully!');
+        console.log('Jimbo 3D loaded successfully! Mobile: ' + isMobile);
     });
 
     // Mouse move - Jimbo AND Space follow mouse
@@ -92,12 +92,12 @@ loader.load('./3d/space.glb', function(gltf) {
         
         // Space follows mouse with parallax (subtle movement)
         if (spaceModel) {
-            spaceModel.rotation.y = mouseX * 0.1; // Much more subtle
-            spaceModel.rotation.x = -mouseY * 0.05; // Much more subtle
+            spaceModel.rotation.y = mouseX * 0.1;
+            spaceModel.rotation.x = -mouseY * 0.05;
         }
     });
 
-    // Click - ONLY on Jimbo
+    // Click - ONLY on Jimbo - MOBILE OPTIMIZED
     document.addEventListener('click', (e) => {
         if (!jimboModel || isAnimating) return;
         
@@ -109,17 +109,19 @@ loader.load('./3d/space.glb', function(gltf) {
         
         if (intersects.length > 0) {
             if (!isLaughing) {
-                // Start laughing with smooth zoom
+                // Start laughing with smooth zoom - MOBILE OPTIMIZED
                 isLaughing = true;
                 isAnimating = true;
-                targetScale = 3.25;
+                const isMobile = window.innerWidth <= 768;
+                targetScale = isMobile ? 2.0 : 3.25; // Smaller zoom on mobile
                 laughSound.play();
                 laughAnimation = 0;
             } else {
-                // Stop laughing with smooth zoom out
+                // Stop laughing with smooth zoom out - MOBILE OPTIMIZED
                 isLaughing = false;
                 isAnimating = true;
-                targetScale = 2.5;
+                const isMobile = window.innerWidth <= 768;
+                targetScale = isMobile ? 1.5 : 2.5; // Back to smaller size on mobile
                 laughSound.pause();
                 laughSound.currentTime = 0;
             }
@@ -162,7 +164,3 @@ loader.load('./3d/space.glb', function(gltf) {
 }
 
 init();
-
-
-
-
