@@ -44,44 +44,24 @@ function init() {
 // Load Space background model
 loader.load('./3d/space.glb', function(gltf) {
     spaceModel = gltf.scene;
-    
-    // SHADER TO CHANGE EVERYTHING TO YELLOW (HUE)
-    spaceModel.traverse((child) => {
-        if (child.isMesh && child.material) {
-            child.material = new THREE.ShaderMaterial({
-                uniforms: {
-                    texture: { value: child.material.map },
-                    hueColor: { value: new THREE.Color(0xffff00) } // YELLOW
-                },
-                vertexShader: `
-                    varying vec2 vUv;
-                    void main() {
-                        vUv = uv;
-                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                    }
-                `,
-                fragmentShader: `
-                    uniform sampler2D texture;
-                    uniform vec3 hueColor;
-                    varying vec2 vUv;
-                    
-                    void main() {
-                        vec4 texColor = texture2D(texture, vUv);
-                        // Convert to grayscale and apply yellow hue
-                        float gray = (texColor.r + texColor.g + texColor.b) / 3.0;
-                        gl_FragColor = vec4(gray * hueColor, texColor.a);
-                    }
-                `,
-                transparent: true
-            });
-        }
+    scene.add(spaceModel);
+    spaceModel.scale.set(0.5, 0.5, 0.5); // ← ESCALA MANTIDA
+    spaceModel.position.z = -10;
+
+    // YELLOW OVERLAY
+    const overlayGeometry = new THREE.PlaneGeometry(200, 200);
+    const overlayMaterial = new THREE.MeshBasicMaterial({
+        color: 0xffff00,
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.MultiplyBlending
     });
     
-    scene.add(spaceModel);
-    spaceModel.scale.set(0.5, 0.5, 0.5); // SCALE KEPT
-    spaceModel.position.z = -10;
+    const yellowOverlay = new THREE.Mesh(overlayGeometry, overlayMaterial);
+    yellowOverlay.position.z = -5; // Mais perto da câmera
+    scene.add(yellowOverlay);
     
-    console.log('Space background loaded with YELLOW HUE!');
+    console.log('Space background loaded with yellow overlay!');
 });
 
 
@@ -182,6 +162,7 @@ loader.load('./3d/space.glb', function(gltf) {
 }
 
 init();
+
 
 
 
