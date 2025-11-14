@@ -41,7 +41,7 @@ function init() {
         jimboModel = gltf.scene;
         scene.add(jimboModel);
         
-        jimboModel.scale.set(2, 2, 2);
+        jimboModel.scale.set(2.5, 2.5, 2.5);
         jimboModel.position.y = 0;
         
         console.log('Jimbo 3D loaded successfully!');
@@ -76,13 +76,13 @@ function init() {
             if (!isLaughing) {
                 // Start laughing
                 isLaughing = true;
-                jimboModel.scale.set(3, 3, 3);
+                jimboModel.scale.set(3.75, 3.75, 3.75);
                 laughSound.play();
                 laughAnimation = 0;
             } else {
                 // Stop laughing
                 isLaughing = false;
-                jimboModel.scale.set(2, 2, 2);
+                jimboModel.scale.set(2.5, 2.5, 2.5);
                 laughSound.pause();
                 laughSound.currentTime = 0;
                 
@@ -118,3 +118,4 @@ function init() {
 }
 
 init();
+
