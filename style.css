@@ -27,9 +27,7 @@ body {
     font-weight: bold;
     z-index: 2;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-    user-select: all;
-    cursor: text;
-    pointer-events: auto;
+    pointer-events: none;
 }
 
 .bottom-text {
@@ -43,9 +41,8 @@ body {
     font-family: 'Courier New', monospace;
     z-index: 2;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-    user-select: all;
-    cursor: text;
-    pointer-events: auto;
+    pointer-events: none;
 }
+
 
 
