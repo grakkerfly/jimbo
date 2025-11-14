@@ -1,8 +1,11 @@
-let scene, camera, renderer, jimboModel;
+let scene, camera, renderer, jimboModel, spaceModel;
 let isLaughing = false;
+let isAnimating = false;
 let laughAnimation = 0;
 let laughSound;
 let raycaster, mouse;
+let currentScale = 2.5;
+let targetScale = 2.5;
 
 function init() {
     // Scene
@@ -20,7 +23,7 @@ function init() {
 
     // Load laugh sound (with loop)
     laughSound = new Audio('./laugh.mp3');
-    laughSound.loop = true; // REPEAT UNTIL STOP
+    laughSound.loop = true;
 
     // Raycaster for click detection
     raycaster = new THREE.Raycaster();
@@ -34,68 +37,72 @@ function init() {
     directionalLight.position.set(5, 10, 7);
     scene.add(directionalLight);
 
-    // Load Space background model
     const loader = new THREE.GLTFLoader();
+
+    // Load Space background model
     loader.load('./3d/space.glb', function(gltf) {
-        const spaceModel = gltf.scene;
+        spaceModel = gltf.scene;
         scene.add(spaceModel);
-        spaceModel.position.z = -10; // Coloca atrás do Jimbo
+        spaceModel.position.z = -10;
         console.log('Space background loaded!');
     });
-    
+
     // Load Jimbo model
     loader.load('./3d/jimbo.glb', function(gltf) {
         jimboModel = gltf.scene;
         scene.add(jimboModel);
         
         jimboModel.scale.set(2.5, 2.5, 2.5);
+        currentScale = 2.5;
+        targetScale = 2.5;
         jimboModel.position.y = 0;
         
         console.log('Jimbo 3D loaded successfully!');
     });
 
-    // Mouse move - Jimbo follows mouse (FULLY CORRECTED)
+    // Mouse move - Jimbo AND Space follow mouse
     document.addEventListener('mousemove', (e) => {
-        if (!jimboModel || isLaughing) return;
-        
         const mouseX = (e.clientX / window.innerWidth) * 2 - 1;
         const mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
         
-        // FINAL CORRECTION - ALL DIRECTIONS CORRECT
-        jimboModel.rotation.y = mouseX * 0.5; // Left/Right FIXED (no negative)
-        jimboModel.rotation.x = -mouseY * 0.3; // Up/Down correct
+        // Jimbo follows mouse (ALWAYS, even when laughing)
+        if (jimboModel) {
+            jimboModel.rotation.y = mouseX * 0.5;
+            jimboModel.rotation.x = -mouseY * 0.3;
+        }
+        
+        // Space follows mouse with parallax (subtle movement)
+        if (spaceModel) {
+            spaceModel.rotation.y = mouseX * 0.1; // Much more subtle
+            spaceModel.rotation.x = -mouseY * 0.05; // Much more subtle
+        }
     });
 
     // Click - ONLY on Jimbo
     document.addEventListener('click', (e) => {
-        if (!jimboModel) return;
+        if (!jimboModel || isAnimating) return;
         
-        // Calculate mouse position in normalized device coordinates
         mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
         
-        // Check if click is on Jimbo
         raycaster.setFromCamera(mouse, camera);
         const intersects = raycaster.intersectObject(jimboModel, true);
         
         if (intersects.length > 0) {
-            // Click is on Jimbo - toggle laugh
             if (!isLaughing) {
-                // Start laughing
+                // Start laughing with smooth zoom
                 isLaughing = true;
-                jimboModel.scale.set(3.25, 3.25, 3.25);
+                isAnimating = true;
+                targetScale = 3.25;
                 laughSound.play();
                 laughAnimation = 0;
             } else {
-                // Stop laughing
+                // Stop laughing with smooth zoom out
                 isLaughing = false;
-                jimboModel.scale.set(2.5, 2.5, 2.5);
+                isAnimating = true;
+                targetScale = 2.5;
                 laughSound.pause();
                 laughSound.currentTime = 0;
-                
-                // Reset rotation for mouse following
-                jimboModel.rotation.x = 0;
-                jimboModel.rotation.y = 0;
             }
         }
     });
@@ -104,11 +111,23 @@ function init() {
     function animate() {
         requestAnimationFrame(animate);
 
-        if (jimboModel && isLaughing) {
-            // Slow head shaking
+        // Smooth scale animation (zoom in/out)
+        if (jimboModel && isAnimating) {
+            currentScale += (targetScale - currentScale) * 0.15;
+            jimboModel.scale.set(currentScale, currentScale, currentScale);
+            
+            if (Math.abs(targetScale - currentScale) < 0.01) {
+                isAnimating = false;
+                currentScale = targetScale;
+                jimboModel.scale.set(currentScale, currentScale, currentScale);
+            }
+        }
+
+        // Laugh head shaking (while still following mouse)
+        if (jimboModel && isLaughing && !isAnimating) {
             laughAnimation += 0.08;
-            jimboModel.rotation.x = Math.sin(laughAnimation * 4) * 0.05;
-            jimboModel.rotation.y = Math.sin(laughAnimation * 3) * 0.03;
+            jimboModel.rotation.x += Math.sin(laughAnimation * 4) * 0.02;
+            jimboModel.rotation.y += Math.sin(laughAnimation * 3) * 0.01;
         }
 
         renderer.render(scene, camera);
@@ -116,7 +135,6 @@ function init() {
 
     animate();
 
-    // Window resize
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
