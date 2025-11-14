@@ -41,16 +41,16 @@ function init() {
         console.log('Jimbo 3D loaded successfully!');
     });
 
-    // Mouse move - Jimbo follows mouse (CORRECTED DIRECTIONS)
+    // Mouse move - Jimbo follows mouse (FULLY CORRECTED DIRECTIONS)
     document.addEventListener('mousemove', (e) => {
         if (!jimboModel || isLaughing) return;
         
         const mouseX = (e.clientX / window.innerWidth) * 2 - 1;
         const mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
         
-        // CORRECTED: same direction as mouse
-        jimboModel.rotation.y = -mouseX * 0.5; // Fixed X direction
-        jimboModel.rotation.x = mouseY * 0.3;  // Fixed Y direction
+        // CORRECTED BOTH DIRECTIONS
+        jimboModel.rotation.y = -mouseX * 0.5; // Left/Right correct
+        jimboModel.rotation.x = -mouseY * 0.3; // Up/Down FIXED (was inverted)
     });
 
     // Click - Toggle laugh mode
@@ -64,11 +64,15 @@ function init() {
             laughSound.play();
             laughAnimation = 0;
         } else {
-            // Stop laughing
+            // Stop laughing - RETURN TO MOUSE FOLLOWING
             isLaughing = false;
             jimboModel.scale.set(2, 2, 2);
             laughSound.pause();
             laughSound.currentTime = 0;
+            
+            // Reset rotation so it can follow mouse again
+            jimboModel.rotation.x = 0;
+            jimboModel.rotation.y = 0;
         }
     });
 
@@ -77,10 +81,10 @@ function init() {
         requestAnimationFrame(animate);
 
         if (jimboModel && isLaughing) {
-            // Slower head shaking (LESS FRENETIC)
-            laughAnimation += 0.15;
-            jimboModel.rotation.x = Math.sin(laughAnimation * 8) * 0.08; // Slower and smaller
-            jimboModel.rotation.y = Math.sin(laughAnimation * 6) * 0.04; // Slower and smaller
+            // MUCH SLOWER head shaking (NOT FRENETIC)
+            laughAnimation += 0.08; // Slower speed
+            jimboModel.rotation.x = Math.sin(laughAnimation * 4) * 0.05; // Slower and smaller
+            jimboModel.rotation.y = Math.sin(laughAnimation * 3) * 0.03; // Slower and smaller
         }
 
         renderer.render(scene, camera);
