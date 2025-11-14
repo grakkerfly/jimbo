@@ -24,10 +24,13 @@ body {
     text-align: center;
     color: #ffffff;
     font-size: 2rem;
-    font-weight: medium;
+    font-weight: normal;
+    font-family: inherit;
     z-index: 2;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-    pointer-events: none;
+    pointer-events: auto;
+    user-select: text;
+    cursor: text;
 }
 
 .bottom-text {
@@ -38,12 +41,11 @@ body {
     text-align: center;
     color: #ffffff;
     font-size: 2rem;
-    font-weight: medium;
+    font-weight: normal;
+    font-family: inherit;
     z-index: 2;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-    pointer-events: none;
+    pointer-events: auto;
+    user-select: text;
+    cursor: text;
 }
-
-
-
-
