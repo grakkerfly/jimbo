@@ -2,6 +2,7 @@ let scene, camera, renderer, jimboModel;
 let isLaughing = false;
 let laughAnimation = 0;
 let laughSound;
+let raycaster, mouse;
 
 function init() {
     // Scene
@@ -17,8 +18,13 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('container').appendChild(renderer.domElement);
 
-    // Load laugh sound
+    // Load laugh sound (with loop)
     laughSound = new Audio('./laugh.mp3');
+    laughSound.loop = true; // REPEAT UNTIL STOP
+
+    // Raycaster for click detection
+    raycaster = new THREE.Raycaster();
+    mouse = new THREE.Vector2();
 
     // Lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
@@ -41,38 +47,49 @@ function init() {
         console.log('Jimbo 3D loaded successfully!');
     });
 
-    // Mouse move - Jimbo follows mouse (FULLY CORRECTED DIRECTIONS)
+    // Mouse move - Jimbo follows mouse (FULLY CORRECTED)
     document.addEventListener('mousemove', (e) => {
         if (!jimboModel || isLaughing) return;
         
         const mouseX = (e.clientX / window.innerWidth) * 2 - 1;
         const mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
         
-        // CORRECTED BOTH DIRECTIONS
-        jimboModel.rotation.y = -mouseX * 0.5; // Left/Right correct
-        jimboModel.rotation.x = -mouseY * 0.3; // Up/Down FIXED (was inverted)
+        // FINAL CORRECTION - ALL DIRECTIONS CORRECT
+        jimboModel.rotation.y = mouseX * 0.5; // Left/Right FIXED (no negative)
+        jimboModel.rotation.x = -mouseY * 0.3; // Up/Down correct
     });
 
-    // Click - Toggle laugh mode
-    document.addEventListener('click', () => {
+    // Click - ONLY on Jimbo
+    document.addEventListener('click', (e) => {
         if (!jimboModel) return;
         
-        if (!isLaughing) {
-            // Start laughing
-            isLaughing = true;
-            jimboModel.scale.set(3, 3, 3);
-            laughSound.play();
-            laughAnimation = 0;
-        } else {
-            // Stop laughing - RETURN TO MOUSE FOLLOWING
-            isLaughing = false;
-            jimboModel.scale.set(2, 2, 2);
-            laughSound.pause();
-            laughSound.currentTime = 0;
-            
-            // Reset rotation so it can follow mouse again
-            jimboModel.rotation.x = 0;
-            jimboModel.rotation.y = 0;
+        // Calculate mouse position in normalized device coordinates
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+        
+        // Check if click is on Jimbo
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObject(jimboModel, true);
+        
+        if (intersects.length > 0) {
+            // Click is on Jimbo - toggle laugh
+            if (!isLaughing) {
+                // Start laughing
+                isLaughing = true;
+                jimboModel.scale.set(3, 3, 3);
+                laughSound.play();
+                laughAnimation = 0;
+            } else {
+                // Stop laughing
+                isLaughing = false;
+                jimboModel.scale.set(2, 2, 2);
+                laughSound.pause();
+                laughSound.currentTime = 0;
+                
+                // Reset rotation for mouse following
+                jimboModel.rotation.x = 0;
+                jimboModel.rotation.y = 0;
+            }
         }
     });
 
@@ -81,10 +98,10 @@ function init() {
         requestAnimationFrame(animate);
 
         if (jimboModel && isLaughing) {
-            // MUCH SLOWER head shaking (NOT FRENETIC)
-            laughAnimation += 0.08; // Slower speed
-            jimboModel.rotation.x = Math.sin(laughAnimation * 4) * 0.05; // Slower and smaller
-            jimboModel.rotation.y = Math.sin(laughAnimation * 3) * 0.03; // Slower and smaller
+            // Slow head shaking
+            laughAnimation += 0.08;
+            jimboModel.rotation.x = Math.sin(laughAnimation * 4) * 0.05;
+            jimboModel.rotation.y = Math.sin(laughAnimation * 3) * 0.03;
         }
 
         renderer.render(scene, camera);
