@@ -40,7 +40,7 @@ body {
     width: 100%;
     text-align: center;
     color: #ffffff;
-    font-size: 2rem;
+    font-size: 1rem;
     font-weight: normal;
     font-family: inherit;
     z-index: 2;
@@ -49,3 +49,4 @@ body {
     user-select: text;
     cursor: text;
 }
+
