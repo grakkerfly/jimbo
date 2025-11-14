@@ -34,9 +34,16 @@ function init() {
     directionalLight.position.set(5, 10, 7);
     scene.add(directionalLight);
 
-    // Load Jimbo model
+    // Load Space background model
     const loader = new THREE.GLTFLoader();
+    loader.load('./3d/space.glb', function(gltf) {
+        const spaceModel = gltf.scene;
+        scene.add(spaceModel);
+        spaceModel.position.z = -10; // Coloca atrás do Jimbo
+        console.log('Space background loaded!');
+    });
     
+    // Load Jimbo model
     loader.load('./3d/jimbo.glb', function(gltf) {
         jimboModel = gltf.scene;
         scene.add(jimboModel);
