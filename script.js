@@ -41,44 +41,46 @@ function init() {
         console.log('Jimbo 3D loaded successfully!');
     });
 
-    // Mouse move - Jimbo follows mouse
+    // Mouse move - Jimbo follows mouse (CORRECTED DIRECTIONS)
     document.addEventListener('mousemove', (e) => {
         if (!jimboModel || isLaughing) return;
         
         const mouseX = (e.clientX / window.innerWidth) * 2 - 1;
         const mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
         
-        jimboModel.rotation.y = mouseX * 0.5;
-        jimboModel.rotation.x = mouseY * 0.3;
+        // CORRECTED: same direction as mouse
+        jimboModel.rotation.y = -mouseX * 0.5; // Fixed X direction
+        jimboModel.rotation.x = mouseY * 0.3;  // Fixed Y direction
     });
 
-    // Click - Jimbo laughs
+    // Click - Toggle laugh mode
     document.addEventListener('click', () => {
-        if (!jimboModel || isLaughing) return;
+        if (!jimboModel) return;
         
-        isLaughing = true;
-        
-        // Zoom in
-        jimboModel.scale.set(3, 3, 3);
-        
-        // Play laugh sound
-        laughSound.play();
-        
-        // Start laugh animation
-        laughAnimation = 0;
+        if (!isLaughing) {
+            // Start laughing
+            isLaughing = true;
+            jimboModel.scale.set(3, 3, 3);
+            laughSound.play();
+            laughAnimation = 0;
+        } else {
+            // Stop laughing
+            isLaughing = false;
+            jimboModel.scale.set(2, 2, 2);
+            laughSound.pause();
+            laughSound.currentTime = 0;
+        }
     });
 
     // Animation loop
     function animate() {
         requestAnimationFrame(animate);
 
-        if (jimboModel) {
-            if (isLaughing) {
-                // Fast head shaking (laughing)
-                laughAnimation += 0.3;
-                jimboModel.rotation.x = Math.sin(laughAnimation * 15) * 0.1;
-                jimboModel.rotation.y = Math.sin(laughAnimation * 12) * 0.05;
-            }
+        if (jimboModel && isLaughing) {
+            // Slower head shaking (LESS FRENETIC)
+            laughAnimation += 0.15;
+            jimboModel.rotation.x = Math.sin(laughAnimation * 8) * 0.08; // Slower and smaller
+            jimboModel.rotation.y = Math.sin(laughAnimation * 6) * 0.04; // Slower and smaller
         }
 
         renderer.render(scene, camera);
