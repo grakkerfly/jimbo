@@ -50,3 +50,34 @@ body {
     cursor: text;
 }
 
+
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+    .top-text {
+        top: 20px;
+        font-size: 1rem;
+        padding: 0 15px;
+    }
+    
+    .bottom-text {
+        bottom: 20px;
+        font-size: 0.8rem;
+        padding: 0 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .top-text {
+        top: 15px;
+        font-size: 0.9rem;
+        padding: 0 10px;
+    }
+    
+    .bottom-text {
+        bottom: 15px;
+        font-size: 0.7rem;
+        padding: 0 10px;
+    }
+}
+
