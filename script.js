@@ -1,7 +1,7 @@
 let scene, camera, renderer, jimboModel;
-let isClicked = false;
-let originalScale = new THREE.Vector3();
+let isLaughing = false;
 let laughAnimation = 0;
+let laughSound;
 
 function init() {
     // Scene
@@ -16,6 +16,9 @@ function init() {
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('container').appendChild(renderer.domElement);
+
+    // Load laugh sound
+    laughSound = new Audio('./laugh.mp3');
 
     // Lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
@@ -32,9 +35,7 @@ function init() {
         jimboModel = gltf.scene;
         scene.add(jimboModel);
         
-        // Initial scale and position
         jimboModel.scale.set(2, 2, 2);
-        originalScale.copy(jimboModel.scale);
         jimboModel.position.y = 0;
         
         console.log('Jimbo 3D loaded successfully!');
@@ -42,47 +43,42 @@ function init() {
 
     // Mouse move - Jimbo follows mouse
     document.addEventListener('mousemove', (e) => {
-        if (!jimboModel || isClicked) return;
+        if (!jimboModel || isLaughing) return;
         
         const mouseX = (e.clientX / window.innerWidth) * 2 - 1;
         const mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
         
-        // Smooth follow
-        jimboModel.rotation.y = mouseX * 0.3;
-        jimboModel.rotation.x = mouseY * 0.2;
+        jimboModel.rotation.y = mouseX * 0.5;
+        jimboModel.rotation.x = mouseY * 0.3;
     });
 
-    // Click - Jimbo comes closer and laughs
+    // Click - Jimbo laughs
     document.addEventListener('click', () => {
-        if (!jimboModel) return;
+        if (!jimboModel || isLaughing) return;
         
-        isClicked = true;
+        isLaughing = true;
         
-        // Zoom in (150%)
-        jimboModel.scale.set(
-            originalScale.x * 1.5,
-            originalScale.y * 1.5, 
-            originalScale.z * 1.5
-        );
+        // Zoom in
+        jimboModel.scale.set(3, 3, 3);
+        
+        // Play laugh sound
+        laughSound.play();
         
         // Start laugh animation
         laughAnimation = 0;
-        
-        // Return to normal after 2 seconds
-        setTimeout(() => {
-            isClicked = false;
-            jimboModel.scale.copy(originalScale);
-        }, 2000);
     });
 
     // Animation loop
     function animate() {
         requestAnimationFrame(animate);
 
-        if (jimboModel && isClicked) {
-            // Fast up-down movement (laughing)
-            laughAnimation += 0.5;
-            jimboModel.position.y = Math.sin(laughAnimation * 10) * 0.1; // Small movement
+        if (jimboModel) {
+            if (isLaughing) {
+                // Fast head shaking (laughing)
+                laughAnimation += 0.3;
+                jimboModel.rotation.x = Math.sin(laughAnimation * 15) * 0.1;
+                jimboModel.rotation.y = Math.sin(laughAnimation * 12) * 0.05;
+            }
         }
 
         renderer.render(scene, camera);
@@ -98,5 +94,4 @@ function init() {
     });
 }
 
-// Initialize
 init();
