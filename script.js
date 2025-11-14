@@ -76,7 +76,7 @@ function init() {
             if (!isLaughing) {
                 // Start laughing
                 isLaughing = true;
-                jimboModel.scale.set(3.75, 3.75, 3.75);
+                jimboModel.scale.set(3.25, 3.25, 3.25);
                 laughSound.play();
                 laughAnimation = 0;
             } else {
@@ -118,4 +118,5 @@ function init() {
 }
 
 init();
+
 
