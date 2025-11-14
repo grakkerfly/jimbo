@@ -45,9 +45,23 @@ function init() {
         scene.add(spaceModel);
         spaceModel.scale.set(0.5, 0.5, 0.5);
         spaceModel.position.z = -10;
-        console.log('Space background loaded!');
-    });
 
+    // yellow bg
+        const overlayGeometry = new THREE.PlaneGeometry(100, 100);
+        const overlayMaterial = new THREE.MeshBasicMaterial({
+        color: 0xffff00, // AMARELO
+        transparent: true,
+        opacity: 0.3, // Intensidade do amarelo (ajusta de 0.1 a 0.8)
+        blending: THREE.AdditiveBlending // Ou MultiplyBlending, ScreenBlending
+    });
+    
+    const yellowOverlay = new THREE.Mesh(overlayGeometry, overlayMaterial);
+    yellowOverlay.position.z = -9; // Na frente do espaço, atrás do Jimbo
+    scene.add(yellowOverlay);
+    
+    console.log('Space background loaded with yellow overlay!');
+});
+    
     // Load Jimbo model
     loader.load('./3d/jimbo.glb', function(gltf) {
         jimboModel = gltf.scene;
@@ -144,4 +158,5 @@ function init() {
 }
 
 init();
+
 
