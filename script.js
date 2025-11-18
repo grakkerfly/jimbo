@@ -164,3 +164,43 @@ function init() {
 }
 
 init();
+
+
+// function
+
+function initCopyButton() {
+    const copyBtn = document.getElementById('copyBtn');
+    const contractText = document.getElementById('contractText');
+    
+    copyBtn.addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(contractText.textContent);
+            copyBtn.textContent = 'COPIED!';
+            copyBtn.classList.add('copied');
+            
+            setTimeout(() => {
+                copyBtn.textContent = 'COPY';
+                copyBtn.classList.remove('copied');
+            }, 2000);
+        } catch (err) {
+            // 
+            const textArea = document.createElement('textarea');
+            textArea.value = contractText.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            copyBtn.textContent = 'COPIED!';
+            copyBtn.classList.add('copied');
+            
+            setTimeout(() => {
+                copyBtn.textContent = 'COPY';
+                copyBtn.classList.remove('copied');
+            }, 2000);
+        }
+    });
+}
+
+//
+initCopyButton();
